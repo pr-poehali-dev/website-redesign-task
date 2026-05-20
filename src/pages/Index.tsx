@@ -1,7 +1,38 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
 
-const HERO_IMG = "https://cdn.poehali.dev/projects/cdd4c5b4-bcdb-42e8-9626-9645b0de00b0/files/a5a26ecf-ea40-4bb1-92b7-07fbd80ff9fc.jpg";
+const BANNERS = [
+  {
+    img: "https://cdn.poehali.dev/projects/cdd4c5b4-bcdb-42e8-9626-9645b0de00b0/files/37674fb1-341b-4100-b630-8b3dd692fce2.jpg",
+    tag: "Новое поступление",
+    title: "Весенние луковичные",
+    subtitle: "Ирисы, пионы, бегонии, георгины, гладиолусы",
+    cta: "Смотреть",
+    bg: "hsl(101 50% 22%)",
+    accent: "hsl(35 90% 52%)",
+    wide: true,
+  },
+  {
+    img: "https://cdn.poehali.dev/projects/cdd4c5b4-bcdb-42e8-9626-9645b0de00b0/files/225eb839-5671-40da-ad96-9104a04fa5ad.jpg",
+    tag: "Сезон посадки",
+    title: "Семена овощей",
+    subtitle: "Более 500 сортов от ведущих производителей",
+    cta: "В каталог",
+    bg: "hsl(200 55% 22%)",
+    accent: "hsl(101 50% 48%)",
+    wide: false,
+  },
+  {
+    img: "https://cdn.poehali.dev/projects/cdd4c5b4-bcdb-42e8-9626-9645b0de00b0/files/22f64ce1-7087-4cc4-b666-b3cf737d3d11.jpg",
+    tag: "Всё для рассады",
+    title: "Грунты и удобрения",
+    subtitle: "Грунт для рассады, торф, стимуляторы роста",
+    cta: "Выбрать",
+    bg: "hsl(35 60% 25%)",
+    accent: "hsl(35 90% 58%)",
+    wide: false,
+  },
+];
 
 // ── Sidebar categories ──────────────────────────────────────────
 const SIDEBAR = [
@@ -267,48 +298,47 @@ export default function Index() {
       {page === "home" && (
         <main className="max-w-7xl mx-auto px-4 py-6 animate-fade-in">
 
-          {/* Hero banner */}
-          <div
-            className="relative rounded-2xl overflow-hidden mb-8 flex items-center"
-            style={{ minHeight: 220, background: "linear-gradient(135deg, hsl(101 50% 22%) 0%, hsl(101 40% 35%) 100%)" }}
-          >
-            <img
-              src={HERO_IMG}
-              alt="Весенние луковичные"
-              className="absolute inset-0 w-full h-full object-cover opacity-25"
-            />
-            <div className="relative z-10 px-10 py-8 text-white">
-              <div className="text-xs font-semibold uppercase tracking-widest mb-2 opacity-70">Новое поступление</div>
-              <h1 className="font-display font-bold text-3xl md:text-4xl leading-tight mb-4">
-                ПОСТУПЛЕНИЕ<br />ВЕСЕННИХ<br />ЛУКОВИЧНЫХ
-              </h1>
-              <ul className="text-sm opacity-85 space-y-1">
-                {["ирисы", "пионы", "бегонии", "георгины", "гладиолусы", "лилейники"].map(i => (
-                  <li key={i} className="flex items-center gap-2">
-                    <span style={{ color: "hsl(35 90% 65%)" }}>•</span> {i}
-                  </li>
-                ))}
-              </ul>
-              <button
+          {/* Hero banners grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8" style={{ gridTemplateRows: "auto" }}>
+            {BANNERS.map((b, i) => (
+              <div
+                key={i}
+                className={`relative rounded-xl overflow-hidden flex items-end cursor-pointer group ${i === 0 ? "md:row-span-2 md:col-span-1" : ""}`}
+                style={{ minHeight: i === 0 ? 320 : 150, background: b.bg }}
                 onClick={() => setPage("catalog")}
-                className="mt-5 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:brightness-90"
-                style={{ background: "hsl(35 90% 52%)", color: "white" }}
               >
-                Смотреть каталог →
-              </button>
-            </div>
-            {/* Decorative right side */}
-            <div className="hidden md:flex absolute right-8 top-0 bottom-0 items-center gap-4">
-              {["🌸", "🌷", "🌺"].map((e, i) => (
+                {/* Photo */}
+                <img
+                  src={b.img}
+                  alt={b.title}
+                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-500"
+                />
+                {/* Gradient overlay */}
                 <div
-                  key={i}
-                  className="text-5xl opacity-60"
-                  style={{ transform: `rotate(${(i - 1) * 15}deg) translateY(${(i % 2) * 10}px)` }}
-                >
-                  {e}
+                  className="absolute inset-0"
+                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)" }}
+                />
+                {/* Content */}
+                <div className="relative z-10 p-5 text-white w-full">
+                  <div
+                    className="inline-block text-xs font-semibold uppercase tracking-widest mb-1 px-2 py-0.5 rounded-full mb-2"
+                    style={{ background: b.accent, color: "white", fontSize: 10 }}
+                  >
+                    {b.tag}
+                  </div>
+                  <h2 className={`font-display font-bold leading-tight mb-1 ${i === 0 ? "text-2xl" : "text-base"}`}>
+                    {b.title}
+                  </h2>
+                  <p className="text-xs opacity-75 mb-3 leading-relaxed">{b.subtitle}</p>
+                  <button
+                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 hover:brightness-90"
+                    style={{ background: b.accent, color: "white" }}
+                  >
+                    {b.cta} <Icon name="ArrowRight" size={12} />
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
           {/* Main category grid */}
