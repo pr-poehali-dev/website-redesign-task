@@ -311,12 +311,12 @@ export default function Index() {
                 <img
                   src={b.img}
                   alt={b.title}
-                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-500"
+                  className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
                 />
                 {/* Gradient overlay */}
                 <div
                   className="absolute inset-0"
-                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.05) 50%, transparent 100%)" }}
                 />
                 {/* Content */}
                 <div className="relative z-10 p-5 text-white w-full">
