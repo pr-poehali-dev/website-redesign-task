@@ -92,7 +92,7 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},
 			fontFamily: {
-				display: ['Cormorant Garamond', 'serif'],
+				display: ['Montserrat', 'sans-serif'],
 				body: ['Golos Text', 'sans-serif'],
 			}
 		}

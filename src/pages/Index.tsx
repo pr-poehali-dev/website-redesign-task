@@ -1,566 +1,664 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Icon from "@/components/ui/icon";
 
-const HERO_IMAGE = "https://cdn.poehali.dev/projects/cdd4c5b4-bcdb-42e8-9626-9645b0de00b0/files/3ea100f7-65ba-4d8a-9a7c-ad98009d5644.jpg";
+const HERO_IMG = "https://cdn.poehali.dev/projects/cdd4c5b4-bcdb-42e8-9626-9645b0de00b0/files/a5a26ecf-ea40-4bb1-92b7-07fbd80ff9fc.jpg";
 
-const SERVICES = [
+// ── Sidebar categories ──────────────────────────────────────────
+const SIDEBAR = [
   {
-    icon: "Flower2",
-    title: "Авторские букеты",
-    desc: "Создаём уникальные kompoziции из свежих сезонных цветов под ваш запрос и настроение",
-    price: "от 2 500 ₽",
-    color: "bg-rose-50",
-    iconColor: "text-rose-400",
+    group: "Семена",
+    items: ["Овощи", "Цветы", "Газоны, сидераты", "Грибы (мицелий)", "Пряные и лекарственные травы", "Семена картофеля", "Ягоды"],
   },
   {
-    icon: "Leaf",
-    title: "Комнатные растения",
-    desc: "Подберём зелёного питомца под ваш интерьер и уровень заботы — от суккулентов до пальм",
-    price: "от 800 ₽",
-    color: "bg-green-50",
-    iconColor: "text-green-600",
+    group: "Системы посадки",
+    items: ["Горшки", "Кассеты", "Кашпо", "Наборы"],
   },
   {
-    icon: "Gift",
-    title: "Подарочные корзины",
-    desc: "Флористические корзины и боксы с цветами, сладостями и памятными мелочами",
-    price: "от 4 000 ₽",
-    color: "bg-amber-50",
-    iconColor: "text-amber-500",
+    group: "Луковичные",
+    items: ["Гиацинты", "Крокусы", "Лилии", "Нарциссы", "Разнолуковичные цветы", "Тюльпаны", "Георгины", "Пионы", "Гладиолусы", "Земляника садовая", "Бегонии, глоксинии", "Ирисы", "Канны", "Клематисы", "Лилейник", "Каллы"],
   },
   {
-    icon: "Sparkles",
-    title: "Оформление событий",
-    desc: "Свадьбы, дни рождения, корпоративы — украшаем пространство живыми цветами",
-    price: "от 15 000 ₽",
-    color: "bg-purple-50",
-    iconColor: "text-purple-400",
-  },
-];
-
-const WHY_ITEMS = [
-  { icon: "Scissors", title: "Только свежие цветы", desc: "Доставка от проверенных поставщиков 3 раза в неделю" },
-  { icon: "Clock", title: "Быстрая доставка", desc: "Привезём букет за 2–3 часа по всему городу" },
-  { icon: "Heart", title: "С душой", desc: "Каждый букет собирает флорист с 10-летним опытом" },
-  { icon: "Star", title: "Гарантия свежести", desc: "Если цветы завянут — заменим бесплатно" },
-];
-
-const REVIEWS = [
-  {
-    name: "Анастасия М.",
-    text: "Заказывала букет на годовщину свадьбы — получила именно то, что описала. Цветы простояли 12 дней!",
-    stars: 5,
-    date: "апрель 2024",
+    group: "Грунты",
+    items: ["Грунт для рассады", "Грунт специализированный", "Грунт универсальный", "Дренаж", "Торф"],
   },
   {
-    name: "Дмитрий К.",
-    text: "Оформляли свадьбу с Верой. Зал был невероятный — все гости в восторге, фотографии просто сказочные.",
-    stars: 5,
-    date: "август 2024",
+    group: "Удобрения, стимуляторы",
+    items: ["Стимуляторы роста", "Удобрения жидкие", "Удобрения сухие"],
   },
   {
-    name: "Оксана Р.",
-    text: "Лучший цветочный в городе. Всегда свежо, красиво и по хорошей цене. Беру подписку каждый месяц.",
-    stars: 5,
-    date: "октябрь 2024",
+    group: "Укрывной материал",
+    items: ["Пленка", "Спанбонд", "Дуги для парников", "Распылители"],
+  },
+  {
+    group: "Защита растений",
+    items: ["Средства от болезней", "Средства от вредителей", "Средства от сорняков"],
+  },
+  {
+    group: "Средства защиты дома",
+    items: ["Средства защиты от летающих насекомых", "Средства защиты от грызунов и насекомых", "Септики"],
+  },
+  {
+    group: "Перчатки",
+    items: ["Перчатки нейлоновые", "Перчатки х/б", "Перчатки хозяйственные"],
+  },
+  {
+    group: "Шпагат",
+    items: ["Шпагат полипропиленовый", "Шпагат лен", "Шпагат джутовый"],
   },
 ];
 
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+// ── Main categories grid ─────────────────────────────────────────
+const CATEGORIES = [
+  { emoji: "🌱", label: "Семена", color: "#e8f5e9" },
+  { emoji: "🪴", label: "Системы посадки", color: "#e3f2fd" },
+  { emoji: "🌷", label: "Луковичные", color: "#fce4ec" },
+  { emoji: "🪣", label: "Грунты", color: "#fff3e0" },
+  { emoji: "💧", label: "Удобрения, стимуляторы", color: "#e0f7fa" },
+  { emoji: "🛡️", label: "Укрывной материал", color: "#f3e5f5" },
+  { emoji: "🐛", label: "Защита растений", color: "#fff9c4" },
+  { emoji: "🏠", label: "Средства защиты дома", color: "#fbe9e7" },
+  { emoji: "🧤", label: "Перчатки", color: "#e8eaf6" },
+  { emoji: "🧵", label: "Шпагат", color: "#f1f8e9" },
+];
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.1 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+// ── Cassette sub-categories ──────────────────────────────────────
+const CASSETTES = [
+  { label: "серии XD" }, { label: "серии XS" }, { label: "серии XT" }, { label: "серии XQ" },
+];
+const SETS = [
+  { label: "крышки" }, { label: "наборы" }, { label: "поддоны" },
+];
 
-  return { ref, visible };
-}
+// ── Seeds sub-categories ─────────────────────────────────────────
+const SEED_SUBS = ["Овощи", "Цветы", "Газоны, сидераты", "Грибы (мицелий)", "Пряные и лекарственные травы", "Семена картофеля", "Ягоды"];
+const SEED_CATS = [
+  { emoji: "🥦", label: "Овощи" },
+  { emoji: "🌿", label: "Сидераты" },
+  { emoji: "🌸", label: "Цветы" },
+  { emoji: "🍓", label: "Ягоды" },
+];
 
-function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const { ref, visible } = useScrollReveal();
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"} ${className}`}
-    >
-      {children}
-    </div>
-  );
-}
+// ── Producers ────────────────────────────────────────────────────
+const PRODUCERS = ["Гавриш", "Уральский дачник", "Premium", "AgroElita", "Русский Огород", "Агрофирма Партнёр", "Аэлита"];
+
+// ── Pots sub-categories ──────────────────────────────────────────
+const POT_SUBS = ["Кашпо", "Горшки круглые", "Горшки квадратные", "Транспортировочные кассеты под круглые горшки", "Транспортировочные кассеты под квадратные горшки"];
+
+// ── Search results (sample products) ────────────────────────────
+const PRODUCTS = [
+  {
+    id: 1, img: "https://cdn.poehali.dev/projects/cdd4c5b4-bcdb-42e8-9626-9645b0de00b0/bucket/2dfda2f7-f3e4-4d01-b830-e25afd8f58b7.jpg",
+    name: "Земляника Радость Денницы F1",
+    desc: "крупноплодная ремонтант.(клубника) (ран.спел., конич., яр.-красн., сладк., 30-50 г). Евро, 15",
+    category: "СЕМЕНА / ЯГОДЫ",
+    maker: "СеДеК", stock: true, rozn: 79.80, mopt: 66.92, opt: 61.78,
+  },
+  {
+    id: 2, img: "",
+    name: "Арбуз Большая Пекинская Радость F1",
+    desc: "ср.ранний,ОГ, плод 8-16кг, кора тонкая, мякоть ярко-красн., зернистая, оч.сладкий, сахар > 12%). Евр",
+    category: "СЕМЕНА / ОВОЩИ / АРБУЗЫ",
+    maker: "СеДеК", stock: true, rozn: 57.50, mopt: 48.26, opt: 44.54,
+  },
+  {
+    id: 3, img: "",
+    name: "Арбуз Пекинская Радость Деликагесная F1",
+    desc: "ср.ранний, ОГ/ТГ,плод до 3 кг,кора тонкая,мякоть кр.-малин., сахарная, для употр. в св.виде, приго",
+    category: "СЕМЕНА / ОВОЩИ / АРБУЗЫ",
+    maker: "СеДеК", stock: true, rozn: 38.30, mopt: 32.11, opt: 29.64,
+  },
+  {
+    id: 4, img: "",
+    name: "Горох Детская радость",
+    desc: "(6-8 горошин, обильное плодоношение). Евро, 5",
+    category: "СЕМЕНА / ОВОЩИ / ГОРОХ",
+    maker: "СеДеК", stock: false, rozn: 16.20, mopt: 13.61, opt: 12.56,
+  },
+  {
+    id: 5, img: "",
+    name: "Кукуруза Внучкина Радость F1",
+    desc: "(поп-корн) (ск.спел., початк.сах.конич., 10-12 см, оранж., 220-280 г). Евро, 5",
+    category: "СЕМЕНА / ОВОЩИ / КУКУРУЗА",
+    maker: "СеДеК", stock: true, rozn: 16.20, mopt: 13.61, opt: 12.56,
+  },
+  {
+    id: 6, img: "",
+    name: "Морковь Детская радость",
+    desc: "Ц/П, 2г",
+    category: "СЕМЕНА / ОВОЩИ / МОРКОВЬ",
+    maker: "Аэлита", stock: true, rozn: 15.60, mopt: 12.64, opt: 12.15,
+  },
+  {
+    id: 7, img: "",
+    name: "Огурец Всем на радость F1",
+    desc: "Ц/П, 10шт, партенокарпический",
+    category: "СЕМЕНА / ОВОЩИ / ОГУРЦЫ",
+    maker: "Аэлита", stock: true, rozn: 32.00, mopt: 25.99, opt: 24.99,
+  },
+  {
+    id: 8, img: "",
+    name: "Редис Внучкина радость®",
+    desc: "(XИТ! кого.спел., ОГ,цил.-цилиндр.,роз.-красн.с бел.конч.,/бел.св.остр., 15-25 г). Евро, 2",
+    category: "СЕМЕНА / ОВОЩИ / РЕДИС, РЕДЬКА, РЕПА, ДАЙКОН",
+    maker: "СеДеК", stock: false, rozn: 16.20, mopt: 13.61, opt: 12.56,
+  },
+];
+
+type Page = "home" | "catalog";
 
 export default function Index() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [page, setPage] = useState<Page>("home");
+  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+  const [quantities, setQuantities] = useState<Record<number, number>>({});
+  const [activeCat, setActiveCat] = useState<string | null>(null);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) {
+      setSearchQuery(search.trim());
+      setPage("catalog");
+    }
+  };
+
+  const addToCart = (id: number) => {
+    setCartCount(c => c + (quantities[id] || 1));
+  };
+
+  const setQty = (id: number, val: number) => {
+    setQuantities(q => ({ ...q, [id]: Math.max(1, val) }));
+  };
 
   return (
-    <div className="min-h-screen font-body overflow-x-hidden" style={{ background: "hsl(38 30% 98%)" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Golos Text', sans-serif", fontSize: 14 }}>
 
-      {/* NAVBAR */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"}`}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="font-display text-2xl font-semibold" style={{ color: "hsl(var(--green))" }}>
-            🌿 ВераГарден
+      {/* ── TOP BAR ── */}
+      <div style={{ background: "hsl(101 45% 32%)" }} className="py-1.5 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs" style={{ color: "rgba(255,255,255,0.85)" }}>
+          <span>394033, Россия, г. Воронеж, Ленинский проспект, д.176, помещение 58.6</span>
+          <span>Пн.–Пт.: 09:00–19:00 &nbsp;·&nbsp; Сб., Вс.: 09:00–17:00</span>
+        </div>
+      </div>
+
+      {/* ── HEADER ── */}
+      <header className="border-b border-gray-100 bg-white sticky top-0 z-40 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4 flex-wrap">
+          {/* Logo */}
+          <button onClick={() => setPage("home")} className="flex-shrink-0 flex items-center gap-1">
+            <span className="font-display font-bold text-xl" style={{ color: "hsl(101 45% 28%)" }}>
+              VERA<span style={{ color: "hsl(35 90% 52%)" }}>GARDEN</span>
+            </span>
+          </button>
+
+          {/* Search */}
+          <form onSubmit={handleSearch} className="flex-1 max-w-xl flex">
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Поиск по каталогу..."
+              className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-l-lg outline-none focus:border-green-500 transition-colors"
+              style={{ minWidth: 0 }}
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-r-lg text-white text-sm font-medium transition-colors"
+              style={{ background: "hsl(101 45% 32%)" }}
+            >
+              <Icon name="Search" size={16} />
+            </button>
+          </form>
+
+          {/* Contacts */}
+          <div className="text-right text-xs hidden lg:block" style={{ color: "hsl(210 10% 45%)" }}>
+            <div><a href="mailto:sales@veragarden.ru" className="hover:text-green-700">sales@veragarden.ru</a></div>
+            <div className="font-semibold" style={{ color: "hsl(101 45% 28%)", fontSize: 15 }}>
+              +7 (473) 300-40-71
+            </div>
+            <div style={{ color: "hsl(210 10% 55%)" }}>300-40-72</div>
           </div>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {["Букеты", "Растения", "Оформление", "О нас", "Контакты"].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="text-sm font-medium transition-colors hover:text-green-700"
-                style={{ color: scrolled ? "hsl(var(--warm-dark))" : "hsl(38 30% 96%)" }}
-              >
-                {item}
-              </a>
-            ))}
-          </div>
-
-          <a
-            href="tel:+7"
-            className="hidden md:flex items-center gap-2 btn-primary text-sm"
+          {/* Cart */}
+          <button
+            onClick={() => setPage("catalog")}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors relative"
+            style={{ background: cartCount > 0 ? "hsl(101 45% 32%)" : "hsl(101 30% 95%)" }}
           >
-            <Icon name="Phone" size={15} />
-            Заказать букет
-          </a>
-
-          <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            <Icon name={menuOpen ? "X" : "Menu"} size={24} style={{ color: scrolled ? "hsl(var(--warm-dark))" : "white" }} />
+            <Icon name="ShoppingCart" size={18} style={{ color: cartCount > 0 ? "white" : "hsl(101 45% 32%)" }} />
+            <span className="text-sm font-semibold" style={{ color: cartCount > 0 ? "white" : "hsl(101 45% 32%)" }}>
+              {(cartCount * 0).toFixed(2)} руб.
+            </span>
+            {cartCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                {cartCount}
+              </span>
+            )}
           </button>
         </div>
 
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-100 px-6 py-4 flex flex-col gap-4">
-            {["Букеты", "Растения", "Оформление", "О нас", "Контакты"].map((item) => (
-              <a key={item} href="#" className="text-sm font-medium text-gray-700 py-1" onClick={() => setMenuOpen(false)}>
-                {item}
-              </a>
-            ))}
-            <a href="tel:+7" className="btn-primary text-sm text-center mt-2">
-              Заказать букет
-            </a>
-          </div>
-        )}
-      </nav>
-
-      {/* HERO */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${HERO_IMAGE})` }}
-        />
-        {/* Overlay gradient */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(135deg, hsl(142 28% 18% / 0.85) 0%, hsl(30 15% 10% / 0.5) 60%, hsl(348 60% 30% / 0.2) 100%)",
-          }}
-        />
-
-        {/* Floating decorative circles */}
-        <div
-          className="absolute top-24 right-16 w-64 h-64 rounded-full opacity-10 animate-float"
-          style={{ background: "hsl(var(--rose))", filter: "blur(40px)" }}
-        />
-        <div
-          className="absolute bottom-32 left-12 w-48 h-48 rounded-full opacity-15 animate-float delay-300"
-          style={{ background: "hsl(var(--green-light))", filter: "blur(30px)", animationDelay: "2s" }}
-        />
-
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white">
-          <div className="animate-fade-up opacity-0" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
-            <span className="section-tag" style={{ color: "hsl(var(--rose-light))" }}>
-              <span>✦</span> Авторская флористика
-            </span>
-          </div>
-
-          <h1
-            className="font-display mt-6 mb-6 animate-fade-up opacity-0"
-            style={{
-              fontSize: "clamp(3rem, 8vw, 7rem)",
-              lineHeight: 1.05,
-              fontWeight: 400,
-              letterSpacing: "-0.01em",
-              animationDelay: "0.25s",
-              animationFillMode: "forwards",
-            }}
-          >
-            Цветы,<br />
-            <em style={{ color: "hsl(var(--rose-light))", fontStyle: "italic" }}>говорящие</em>
-            <br />за вас
-          </h1>
-
-          <p
-            className="text-lg md:text-xl opacity-80 max-w-2xl mx-auto mb-10 animate-fade-up opacity-0"
-            style={{ animationDelay: "0.4s", animationFillMode: "forwards", fontWeight: 300, lineHeight: 1.7 }}
-          >
-            Создаём авторские букеты, комнатные сады и оформляем самые важные моменты вашей жизни
-          </p>
-
-          <div
-            className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up opacity-0"
-            style={{ animationDelay: "0.55s", animationFillMode: "forwards" }}
-          >
-            <button className="btn-primary text-base px-10 py-4">
-              Выбрать букет
-            </button>
+        {/* Nav */}
+        <nav className="max-w-7xl mx-auto px-4 py-2 flex gap-6 border-t border-gray-50">
+          {[
+            { label: "Главная", p: "home" as Page },
+            { label: "Каталог", p: "catalog" as Page },
+          ].map(({ label, p }) => (
             <button
-              className="border-2 border-white/60 text-white px-10 py-4 rounded-full font-medium transition-all duration-300 hover:bg-white/10"
+              key={label}
+              onClick={() => { setPage(p); if (p === "catalog") setSearchQuery(""); }}
+              className="text-sm font-medium transition-colors pb-1"
+              style={{
+                color: page === p ? "hsl(101 45% 32%)" : "hsl(210 15% 30%)",
+                borderBottom: page === p ? "2px solid hsl(101 45% 32%)" : "2px solid transparent",
+              }}
             >
-              Смотреть каталог
+              {label}
             </button>
-          </div>
+          ))}
+          <button className="text-sm font-medium transition-colors pb-1" style={{ color: "hsl(210 15% 30%)", borderBottom: "2px solid transparent" }}>
+            Порядок работы
+          </button>
+          <button className="text-sm font-medium transition-colors pb-1" style={{ color: "hsl(210 15% 30%)", borderBottom: "2px solid transparent" }}>
+            Контакты
+          </button>
+        </nav>
+      </header>
 
-          {/* Stats row */}
+      {/* ════════════════ HOME PAGE ════════════════ */}
+      {page === "home" && (
+        <main className="max-w-7xl mx-auto px-4 py-6 animate-fade-in">
+
+          {/* Hero banner */}
           <div
-            className="flex flex-wrap justify-center gap-8 mt-16 animate-fade-up opacity-0"
-            style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}
+            className="relative rounded-2xl overflow-hidden mb-8 flex items-center"
+            style={{ minHeight: 220, background: "linear-gradient(135deg, hsl(101 50% 22%) 0%, hsl(101 40% 35%) 100%)" }}
           >
-            {[
-              { value: "10+", label: "лет работы" },
-              { value: "5 000+", label: "довольных клиентов" },
-              { value: "500+", label: "видов цветов" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="font-display text-4xl font-semibold" style={{ color: "hsl(var(--rose-light))" }}>{s.value}</div>
-                <div className="text-sm opacity-70 mt-1">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50 text-xs animate-float">
-          <span>листайте вниз</span>
-          <Icon name="ChevronDown" size={20} />
-        </div>
-      </section>
-
-      {/* SERVICES */}
-      <section id="букеты" className="py-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <RevealSection className="text-center mb-16">
-            <span className="section-tag">✦ Что мы предлагаем</span>
-            <h2
-              className="font-display mt-4"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 400, color: "hsl(var(--warm-dark))" }}
-            >
-              Наши услуги
-            </h2>
-            <p className="text-base mt-4 max-w-xl mx-auto" style={{ color: "hsl(var(--muted-foreground))", lineHeight: 1.7 }}>
-              От нежного букета до грандиозного оформления — всё с любовью к деталям
-            </p>
-          </RevealSection>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SERVICES.map((s, i) => (
-              <RevealSection key={s.title}>
-                <div
-                  className={`card-hover rounded-2xl p-7 ${s.color} border border-white/80 cursor-pointer h-full flex flex-col`}
-                  style={{ transitionDelay: `${i * 80}ms` }}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 bg-white shadow-sm`}>
-                    <Icon name={s.icon} size={22} className={s.iconColor} />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: "hsl(var(--warm-dark))" }}>{s.title}</h3>
-                  <p className="text-sm leading-relaxed flex-1" style={{ color: "hsl(var(--muted-foreground))" }}>{s.desc}</p>
-                  <div className="mt-5 flex items-center justify-between">
-                    <span className="font-semibold text-sm" style={{ color: "hsl(var(--green))" }}>{s.price}</span>
-                    <Icon name="ArrowRight" size={16} style={{ color: "hsl(var(--green))" }} />
-                  </div>
-                </div>
-              </RevealSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ABOUT BANNER */}
-      <section
-        id="о нас"
-        className="py-24 px-6 relative overflow-hidden"
-        style={{ background: "hsl(142 28% 28%)" }}
-      >
-        {/* Decorative blobs */}
-        <div
-          className="absolute -top-20 -right-20 w-96 h-96 rounded-full opacity-10"
-          style={{ background: "hsl(var(--rose))", filter: "blur(60px)" }}
-        />
-        <div
-          className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full opacity-10"
-          style={{ background: "hsl(var(--green-light))", filter: "blur(50px)" }}
-        />
-
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <RevealSection>
-              <span className="section-tag" style={{ color: "hsl(var(--rose-light))" }}>✦ О нас</span>
-              <h2
-                className="font-display mt-4 text-white"
-                style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", fontWeight: 400, lineHeight: 1.15 }}
-              >
-                Флористика — это<br />
-                <em style={{ color: "hsl(var(--rose-light))" }}>искусство эмоций</em>
-              </h2>
-              <p className="mt-6 text-base leading-relaxed" style={{ color: "hsl(0 0% 100% / 0.75)" }}>
-                ВераГарден — авторская цветочная мастерская с 2014 года. Мы верим, что каждый цветок несёт особый смысл, а правильно составленный букет может сказать то, для чего не хватает слов.
-              </p>
-              <p className="mt-4 text-base leading-relaxed" style={{ color: "hsl(0 0% 100% / 0.75)" }}>
-                Наши флористы регулярно проходят обучение в Европе, следят за трендами и создают композиции, которые становятся частью ваших историй.
-              </p>
-              <button className="mt-8 border-2 border-white/50 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 hover:bg-white hover:text-green-800">
-                Познакомиться ближе
-              </button>
-            </RevealSection>
-
-            <RevealSection>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: "Award", value: "10 лет", label: "на рынке флористики" },
-                  { icon: "Users", value: "5 000+", label: "счастливых клиентов" },
-                  { icon: "MapPin", value: "2 магазина", label: "в вашем городе" },
-                  { icon: "Truck", value: "2–3 часа", label: "доставка по городу" },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-2xl p-6 text-center"
-                    style={{ background: "hsl(0 0% 100% / 0.06)", border: "1px solid hsl(0 0% 100% / 0.1)" }}
-                  >
-                    <Icon name={item.icon} size={28} style={{ color: "hsl(var(--rose-light))" }} className="mx-auto mb-3" />
-                    <div className="font-display text-2xl text-white font-medium">{item.value}</div>
-                    <div className="text-xs mt-1" style={{ color: "hsl(0 0% 100% / 0.55)" }}>{item.label}</div>
-                  </div>
+            <img
+              src={HERO_IMG}
+              alt="Весенние луковичные"
+              className="absolute inset-0 w-full h-full object-cover opacity-25"
+            />
+            <div className="relative z-10 px-10 py-8 text-white">
+              <div className="text-xs font-semibold uppercase tracking-widest mb-2 opacity-70">Новое поступление</div>
+              <h1 className="font-display font-bold text-3xl md:text-4xl leading-tight mb-4">
+                ПОСТУПЛЕНИЕ<br />ВЕСЕННИХ<br />ЛУКОВИЧНЫХ
+              </h1>
+              <ul className="text-sm opacity-85 space-y-1">
+                {["ирисы", "пионы", "бегонии", "георгины", "гладиолусы", "лилейники"].map(i => (
+                  <li key={i} className="flex items-center gap-2">
+                    <span style={{ color: "hsl(35 90% 65%)" }}>•</span> {i}
+                  </li>
                 ))}
-              </div>
-            </RevealSection>
-          </div>
-        </div>
-      </section>
-
-      {/* WHY US */}
-      <section className="py-24 px-6" style={{ background: "hsl(var(--cream))" }}>
-        <div className="max-w-7xl mx-auto">
-          <RevealSection className="text-center mb-16">
-            <span className="section-tag">✦ Почему мы</span>
-            <h2
-              className="font-display mt-4"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 400, color: "hsl(var(--warm-dark))" }}
-            >
-              Ценим каждую деталь
-            </h2>
-          </RevealSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {WHY_ITEMS.map((item, i) => (
-              <RevealSection key={item.title}>
+              </ul>
+              <button
+                onClick={() => setPage("catalog")}
+                className="mt-5 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:brightness-90"
+                style={{ background: "hsl(35 90% 52%)", color: "white" }}
+              >
+                Смотреть каталог →
+              </button>
+            </div>
+            {/* Decorative right side */}
+            <div className="hidden md:flex absolute right-8 top-0 bottom-0 items-center gap-4">
+              {["🌸", "🌷", "🌺"].map((e, i) => (
                 <div
-                  className="text-center p-8 rounded-2xl bg-white card-hover"
-                  style={{ boxShadow: "0 2px 20px hsl(142 28% 28% / 0.06)", transitionDelay: `${i * 100}ms` }}
+                  key={i}
+                  className="text-5xl opacity-60"
+                  style={{ transform: `rotate(${(i - 1) * 15}deg) translateY(${(i % 2) * 10}px)` }}
                 >
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                    style={{ background: "hsl(var(--green-pale))" }}
-                  >
-                    <Icon name={item.icon} size={24} style={{ color: "hsl(var(--green))" }} />
-                  </div>
-                  <h3 className="font-semibold mb-2" style={{ color: "hsl(var(--warm-dark))" }}>{item.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>{item.desc}</p>
+                  {e}
                 </div>
-              </RevealSection>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* REVIEWS */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <RevealSection className="text-center mb-16">
-            <span className="section-tag">✦ Отзывы</span>
-            <h2
-              className="font-display mt-4"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 400, color: "hsl(var(--warm-dark))" }}
-            >
-              Говорят клиенты
+          {/* Main category grid */}
+          <section className="mb-8">
+            <h2 className="font-display font-bold text-lg mb-4" style={{ color: "hsl(101 45% 28%)" }}>
+              Категории товаров
             </h2>
-          </RevealSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {REVIEWS.map((r, i) => (
-              <RevealSection key={r.name}>
-                <div
-                  className="p-8 rounded-2xl card-hover"
-                  style={{
-                    background: i % 2 === 1 ? "hsl(142 28% 28%)" : "hsl(var(--cream))",
-                    transitionDelay: `${i * 100}ms`,
-                  }}
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => { setPage("catalog"); setSearchQuery(cat.label); setActiveCat(cat.label); }}
+                  className="cat-card"
+                  style={{ background: cat.color }}
                 >
-                  <div className="flex gap-1 mb-4">
-                    {Array.from({ length: r.stars }).map((_, j) => (
-                      <span key={j} style={{ color: "hsl(var(--rose))" }}>★</span>
+                  <span className="text-3xl">{cat.emoji}</span>
+                  <span className="text-xs font-medium leading-tight" style={{ color: "hsl(210 15% 25%)" }}>
+                    {cat.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Cassettes section */}
+          <section className="mb-8 rounded-xl border border-gray-100 p-5" style={{ background: "hsl(210 15% 98%)" }}>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-display font-bold text-base mb-3" style={{ color: "hsl(101 45% 28%)" }}>КАССЕТЫ</h3>
+                <ul className="space-y-1">
+                  {CASSETTES.map(c => (
+                    <li key={c.label} className="flex items-center gap-2 text-sm cursor-pointer hover:text-green-700 transition-colors" style={{ color: "hsl(210 15% 30%)" }}>
+                      <span style={{ color: "hsl(35 90% 52%)" }}>•</span> {c.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-base mb-3" style={{ color: "hsl(101 45% 28%)" }}>НАБОРЫ</h3>
+                <ul className="space-y-1">
+                  {SETS.map(s => (
+                    <li key={s.label} className="flex items-center gap-2 text-sm cursor-pointer hover:text-green-700 transition-colors" style={{ color: "hsl(210 15% 30%)" }}>
+                      <span style={{ color: "hsl(35 90% 52%)" }}>•</span> {s.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Seeds section */}
+          <section className="mb-8">
+            <div className="flex gap-8">
+              <div className="w-44 flex-shrink-0">
+                <h3 className="font-display font-bold text-base mb-3" style={{ color: "hsl(101 45% 28%)" }}>СЕМЕНА</h3>
+                <ul className="space-y-1">
+                  {SEED_SUBS.map(s => (
+                    <li key={s} className="sidebar-link text-xs">{s}</li>
+                  ))}
+                </ul>
+                <div className="mt-4">
+                  <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "hsl(210 10% 50%)" }}>
+                    Семена от ведущих производителей
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {PRODUCERS.map(p => (
+                      <span key={p} className="badge-green text-xs cursor-pointer hover:bg-green-100 transition-colors">{p}</span>
                     ))}
                   </div>
-                  <p
-                    className="text-base leading-relaxed mb-6 font-display italic"
-                    style={{
-                      color: i % 2 === 1 ? "hsl(0 0% 100% / 0.85)" : "hsl(var(--warm-dark))",
-                      fontSize: "1.1rem",
-                    }}
-                  >
-                    «{r.text}»
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm" style={{ color: i % 2 === 1 ? "hsl(0 0% 100% / 0.9)" : "hsl(var(--warm-dark))" }}>
-                      {r.name}
-                    </span>
-                    <span className="text-xs" style={{ color: i % 2 === 1 ? "hsl(0 0% 100% / 0.4)" : "hsl(var(--muted-foreground))" }}>
-                      {r.date}
-                    </span>
-                  </div>
                 </div>
-              </RevealSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA SECTION */}
-      <section
-        className="py-24 px-6 relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, hsl(348 60% 60%) 0%, hsl(348 50% 45%) 100%)" }}
-      >
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "60px 60px" }}
-        />
-        <RevealSection className="max-w-3xl mx-auto text-center relative z-10">
-          <h2
-            className="font-display text-white mb-4"
-            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 400 }}
-          >
-            Готовы удивить кого-то важного?
-          </h2>
-          <p className="text-white/80 text-lg mb-10 leading-relaxed">
-            Позвоните нам или напишите — и мы создадим букет, который запомнят надолго
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="tel:+7"
-              className="flex items-center justify-center gap-2 bg-white px-10 py-4 rounded-full font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-              style={{ color: "hsl(var(--rose))" }}
-            >
-              <Icon name="Phone" size={18} />
-              Позвонить нам
-            </a>
-            <a
-              href="https://wa.me/"
-              className="flex items-center justify-center gap-2 border-2 border-white/60 text-white px-10 py-4 rounded-full font-medium transition-all duration-300 hover:bg-white/10"
-            >
-              <Icon name="MessageCircle" size={18} />
-              Написать в WhatsApp
-            </a>
-          </div>
-        </RevealSection>
-      </section>
-
-      {/* CONTACTS */}
-      <section id="контакты" className="py-24 px-6" style={{ background: "hsl(var(--cream))" }}>
-        <div className="max-w-7xl mx-auto">
-          <RevealSection className="text-center mb-16">
-            <span className="section-tag">✦ Контакты</span>
-            <h2
-              className="font-display mt-4"
-              style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 400, color: "hsl(var(--warm-dark))" }}
-            >
-              Найдите нас
-            </h2>
-          </RevealSection>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: "Phone",
-                title: "Телефон",
-                lines: ["+7 (___) ___-__-__", "Ежедневно 9:00–21:00"],
-                action: "Позвонить",
-                href: "tel:+7",
-              },
-              {
-                icon: "MapPin",
-                title: "Адрес магазина",
-                lines: ["ул. Цветочная, д. 1", "Ваш город"],
-                action: "Построить маршрут",
-                href: "#",
-              },
-              {
-                icon: "Instagram",
-                title: "Соцсети",
-                lines: ["@veragarden", "Смотрите наши работы"],
-                action: "Перейти",
-                href: "https://instagram.com/veragarden",
-              },
-            ].map((c) => (
-              <RevealSection key={c.title}>
-                <div className="bg-white rounded-2xl p-8 text-center card-hover" style={{ boxShadow: "0 2px 20px hsl(142 28% 28% / 0.06)" }}>
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                    style={{ background: "hsl(var(--green-pale))" }}
-                  >
-                    <Icon name={c.icon} size={24} style={{ color: "hsl(var(--green))" }} />
-                  </div>
-                  <h3 className="font-semibold mb-3" style={{ color: "hsl(var(--warm-dark))" }}>{c.title}</h3>
-                  {c.lines.map((l) => (
-                    <p key={l} className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>{l}</p>
+              </div>
+              <div className="flex-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {SEED_CATS.map(cat => (
+                    <button
+                      key={cat.label}
+                      onClick={() => { setPage("catalog"); setSearchQuery(cat.label); }}
+                      className="cat-card border border-gray-100 bg-white hover:shadow-md"
+                    >
+                      <span className="text-4xl">{cat.emoji}</span>
+                      <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "hsl(210 15% 35%)" }}>
+                        {cat.label}
+                      </span>
+                    </button>
                   ))}
-                  <a
-                    href={c.href}
-                    className="inline-block mt-5 text-sm font-medium"
-                    style={{ color: "hsl(var(--green))" }}
-                  >
-                    {c.action} →
-                  </a>
                 </div>
-              </RevealSection>
-            ))}
-          </div>
-        </div>
-      </section>
+              </div>
+            </div>
+          </section>
 
-      {/* FOOTER */}
-      <footer style={{ background: "hsl(var(--warm-dark))" }} className="py-12 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="font-display text-2xl font-semibold text-white">
-            🌿 ВераГарден
+          {/* Pots section */}
+          <section className="mb-8 rounded-xl border border-gray-100 p-5" style={{ background: "hsl(210 15% 98%)" }}>
+            <div className="flex gap-8 items-start">
+              <div className="text-5xl">🪴</div>
+              <div className="flex-1">
+                <h3 className="font-display font-bold text-base mb-3" style={{ color: "hsl(101 45% 28%)" }}>ГОРШОЧКИ</h3>
+                <ul className="space-y-1">
+                  {POT_SUBS.map(s => (
+                    <li key={s} className="flex items-center gap-2 text-sm cursor-pointer hover:text-green-700 transition-colors" style={{ color: "hsl(210 15% 30%)" }}>
+                      <span style={{ color: "hsl(35 90% 52%)" }}>•</span> {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      )}
+
+      {/* ════════════════ CATALOG / SEARCH PAGE ════════════════ */}
+      {page === "catalog" && (
+        <div className="max-w-7xl mx-auto px-4 py-6 flex gap-5 animate-fade-in">
+
+          {/* Sidebar */}
+          <aside className="hidden lg:block w-52 flex-shrink-0">
+            <div className="sticky top-28">
+              {SIDEBAR.map((group) => (
+                <div key={group.group}>
+                  <div className="sidebar-group-title">{group.group}</div>
+                  {group.items.map(item => (
+                    <button
+                      key={item}
+                      onClick={() => setSearchQuery(item)}
+                      className={`sidebar-link w-full text-left ${searchQuery === item ? "bg-green-50 text-green-700 font-medium" : ""}`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </aside>
+
+          {/* Main */}
+          <main className="flex-1 min-w-0">
+            <h1 className="font-display font-bold text-xl mb-1" style={{ color: "hsl(101 45% 28%)" }}>
+              Поиск по каталогу
+            </h1>
+
+            {searchQuery && (
+              <div className="text-sm mb-4" style={{ color: "hsl(210 10% 45%)" }}>
+                Результат поиска по запросу:{" "}
+                <span className="font-semibold" style={{ color: "hsl(101 45% 32%)" }}>
+                  {searchQuery}
+                </span>
+                <span className="ml-3 text-xs badge-green">{PRODUCTS.length} товаров</span>
+              </div>
+            )}
+
+            {!searchQuery && (
+              <div className="text-sm mb-4" style={{ color: "hsl(210 10% 50%)" }}>
+                Выберите категорию слева или введите запрос в поиске
+              </div>
+            )}
+
+            {/* Table header */}
+            <div
+              className="hidden md:grid gap-3 px-4 py-2 rounded-t-lg text-xs font-semibold uppercase tracking-wide"
+              style={{
+                gridTemplateColumns: "72px 1fr 120px 80px 60px 60px 60px 90px",
+                background: "hsl(101 30% 95%)",
+                color: "hsl(101 45% 28%)",
+              }}
+            >
+              <div></div>
+              <div>Наименование</div>
+              <div>Производитель</div>
+              <div>Склад</div>
+              <div className="text-right">Розн.</div>
+              <div className="text-right">М.Опт</div>
+              <div className="text-right">Опт</div>
+              <div className="text-center">Заказ</div>
+            </div>
+
+            {/* Product rows */}
+            <div className="border border-gray-100 rounded-b-lg overflow-hidden">
+              {PRODUCTS.map((p, i) => (
+                <div key={p.id} className="animate-fade-up" style={{ animationDelay: `${i * 50}ms`, opacity: 0, animationFillMode: "forwards" }}>
+                  {/* Category separator */}
+                  {(i === 0 || PRODUCTS[i - 1].category !== p.category) && (
+                    <div
+                      className="px-4 py-2 text-xs font-bold uppercase tracking-wide border-t border-gray-100"
+                      style={{ background: "hsl(210 15% 97%)", color: "hsl(210 10% 45%)" }}
+                    >
+                      {p.category}
+                    </div>
+                  )}
+
+                  {/* Row */}
+                  <div
+                    className="hidden md:grid items-center gap-3 px-4 py-3 transition-colors hover:bg-green-50 cursor-pointer border-b border-gray-50"
+                    style={{ gridTemplateColumns: "72px 1fr 120px 80px 60px 60px 60px 90px" }}
+                  >
+                    {/* Image */}
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center border border-gray-100">
+                      {p.img ? (
+                        <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-2xl">🌱</span>
+                      )}
+                    </div>
+
+                    {/* Name + desc */}
+                    <div>
+                      <div className="font-semibold text-sm leading-snug mb-0.5" style={{ color: "hsl(101 45% 28%)" }}>{p.name}</div>
+                      <div className="text-xs leading-relaxed" style={{ color: "hsl(210 10% 55%)" }}>{p.desc}</div>
+                    </div>
+
+                    {/* Maker */}
+                    <div className="text-sm" style={{ color: "hsl(210 15% 35%)" }}>{p.maker}</div>
+
+                    {/* Stock */}
+                    <div>
+                      {p.stock ? (
+                        <span className="badge-green">в наличии</span>
+                      ) : (
+                        <span className="badge-red">отсутствует</span>
+                      )}
+                    </div>
+
+                    {/* Prices */}
+                    <div className="text-right text-sm font-semibold" style={{ color: "hsl(210 15% 20%)" }}>
+                      {p.rozn.toFixed(2)}
+                    </div>
+                    <div className="text-right text-sm" style={{ color: "hsl(210 10% 45%)" }}>
+                      {p.mopt.toFixed(2)}
+                    </div>
+                    <div className="text-right text-sm" style={{ color: "hsl(210 10% 45%)" }}>
+                      {p.opt.toFixed(2)}
+                    </div>
+
+                    {/* Order */}
+                    <div className="flex items-center gap-1 justify-center">
+                      <button
+                        onClick={() => setQty(p.id, (quantities[p.id] || 1) - 1)}
+                        className="w-6 h-6 rounded border border-gray-200 flex items-center justify-center text-xs hover:bg-gray-100 transition-colors"
+                        style={{ color: "hsl(210 15% 40%)" }}
+                      >−</button>
+                      <input
+                        type="number"
+                        value={quantities[p.id] || 1}
+                        onChange={e => setQty(p.id, parseInt(e.target.value) || 1)}
+                        className="w-8 text-center text-xs border border-gray-200 rounded py-1 outline-none"
+                      />
+                      <button
+                        onClick={() => addToCart(p.id)}
+                        className="w-6 h-6 rounded flex items-center justify-center text-white text-xs transition-colors hover:brightness-90"
+                        style={{ background: "hsl(101 45% 32%)" }}
+                      >
+                        <Icon name="Plus" size={12} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mobile row */}
+                  <div className="md:hidden flex gap-3 px-4 py-3 border-b border-gray-50 hover:bg-green-50 transition-colors">
+                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0 border border-gray-100">
+                      {p.img ? <img src={p.img} alt={p.name} className="w-full h-full object-cover" /> : <span className="text-xl">🌱</span>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm mb-0.5 leading-snug" style={{ color: "hsl(101 45% 28%)" }}>{p.name}</div>
+                      <div className="text-xs mb-1" style={{ color: "hsl(210 10% 55%)" }}>{p.maker}</div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-sm" style={{ color: "hsl(210 15% 20%)" }}>{p.rozn.toFixed(2)} руб.</span>
+                        {p.stock ? <span className="badge-green">в наличии</span> : <span className="badge-red">отсутствует</span>}
+                        <button
+                          onClick={() => addToCart(p.id)}
+                          className="ml-auto px-3 py-1 rounded text-white text-xs font-medium"
+                          style={{ background: "hsl(101 45% 32%)" }}
+                        >
+                          В корзину
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between mt-5">
+              <div className="text-xs" style={{ color: "hsl(210 10% 50%)" }}>
+                Записей на странице:
+                {[30, 50, 100, 200].map(n => (
+                  <button key={n} className="ml-2 px-2 py-0.5 rounded text-xs transition-colors hover:bg-green-50" style={{ color: "hsl(101 45% 32%)" }}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors" style={{ color: "hsl(210 10% 45%)" }}>
+                  Назад
+                </button>
+                <span
+                  className="text-xs px-3 py-1 rounded text-white font-semibold"
+                  style={{ background: "hsl(101 45% 32%)" }}
+                >1</span>
+                <button className="text-xs px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors" style={{ color: "hsl(210 10% 45%)" }}>
+                  Далее
+                </button>
+              </div>
+            </div>
+          </main>
+        </div>
+      )}
+
+      {/* ── FOOTER ── */}
+      <footer className="mt-12 border-t border-gray-100" style={{ background: "hsl(210 15% 12%)" }}>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <div className="font-display font-bold text-base mb-3" style={{ color: "white" }}>
+                VERA<span style={{ color: "hsl(35 90% 60%)" }}>GARDEN</span>
+              </div>
+              <div className="text-xs space-y-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p>394033, Россия, г. Воронеж</p>
+                <p>Ленинский проспект, д.176, помещение 58.6</p>
+                <p>Тел./факс: +7 (473) 300-40-71, 300-40-72</p>
+                <p>E-mail: <a href="mailto:sales@veragarden.ru" className="hover:text-green-400 transition-colors">sales@veragarden.ru</a></p>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>Время работы</div>
+              <div className="text-xs space-y-1" style={{ color: "rgba(255,255,255,0.55)" }}>
+                <p>Магазин: Пн.–Пт.: 09:00–19:00, Сб., Вс.: 09:00–17:00</p>
+                <p>Офис/склад: Пн.–Пт.: 08:00–17:00, Сб., Вс.: выходной</p>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>Навигация</div>
+              <div className="flex flex-col gap-1.5">
+                {["Главная", "Порядок работы", "Контакты"].map(l => (
+                  <button key={l} className="text-xs text-left transition-colors hover:text-green-400" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-          <p className="text-sm text-center" style={{ color: "hsl(0 0% 100% / 0.4)" }}>
-            © 2024 ВераГарден. Авторская флористика с 2014 года.
-          </p>
-          <div className="flex gap-4">
-            {["Instagram", "MessageCircle", "Phone"].map((icon) => (
-              <button
-                key={icon}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                style={{ background: "hsl(0 0% 100% / 0.08)" }}
-              >
-                <Icon name={icon} size={16} style={{ color: "hsl(0 0% 100% / 0.6)" }} />
-              </button>
-            ))}
+          <div className="border-t pt-4 flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>© 2024 ВераГарден</span>
+            <div className="flex gap-3">
+              <a href="mailto:sales@veragarden.ru" className="transition-colors hover:text-green-400" style={{ color: "rgba(255,255,255,0.35)" }}>
+                <Icon name="Mail" size={15} />
+              </a>
+              <a href="tel:+74733004071" className="transition-colors hover:text-green-400" style={{ color: "rgba(255,255,255,0.35)" }}>
+                <Icon name="Phone" size={15} />
+              </a>
+            </div>
           </div>
         </div>
       </footer>
